@@ -1,0 +1,28 @@
+# mdat
+## movie data box
+## Data fields
+- Size:
+A **32-bit** integer that specifies the number of bytes in this media data atom.
+- Type:
+A **32-bit** integer that identifies the atom type.
+- Extended size:
+A **64-bit** integer that specifies the number of bytes in this media data atom.
+- Movie media data：
+The movie's media data.
+## Parse code
+
+```ts
+import Stream from '../stream'
+
+export default function mdat(buffer:any){
+    const stream = new Stream(buffer)
+
+    const data = stream.buffer.subarray(stream.position, stream.buffer.length)
+
+    const mdatBox = {
+        data,
+    }
+
+    return mdatBox
+}
+```

@@ -1,0 +1,55 @@
+# stts
+## Sync sample box
+identifies the key frames in the media.
+
+## Overview
+| Data field  | Bytes |
+| ----------- | ----- |
+| Size        | 4     |
+| Type        | 4     |
+| Version        |1     |
+| Flags       | 3    |
+| Number of entries       | 4    |
+| Sync sample table      | Variable     |
+
+## Data fields
+- Size:
+A 32-bit integer that specifies the number of bytes in this sync sample atom.
+- Type:
+A 32-bit integer that identifies the atom type.
+- Version:
+A 1-byte specification of the version of this sync sample atom.
+- Flags:
+A 3-byte space for sync sample flags.
+- Number of entries:
+A 32-bit integer containing the count of entries in the sync sample table.
+- Sync sample table:
+A table of sample numbers.
+
+# Parse code
+```ts
+import Stream from '../stream'
+
+export default function stss(buffer:any){
+    const stream = new Stream(buffer)
+
+    const version = stream.readByte(1)
+    const flags = stream.readByte(3)
+    
+    const entryCount = stream.readByte(4)
+    const samples = []
+
+    for(let i =0;i<entryCount;i++){
+        samples.push({sampleNumber:stream.readByte(4)})
+    }
+
+    const stssBox = {
+        version,
+        flags,
+        samples,
+    }
+
+    return stssBox
+
+}
+```

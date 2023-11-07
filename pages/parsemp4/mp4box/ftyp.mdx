@@ -1,0 +1,44 @@
+# ftyp
+## File type box
+
+## Data fields
+- Size: 
+A **32-bit** integer that specifies the number of bytes in the atom.
+
+- Type:
+A **32-bit** unsigned integer that identifies the atom type, typically represented as a four-character code.
+
+- Major brand:
+A **32-bit** unsigned integer that represents a file format code.
+
+- Minor version:
+A **32-bit** field that indicates the file format specification version.
+
+- Compatible brands:
+A series of unsigned **32-bit** integers listing compatible file formats.
+
+## Parse code
+
+```ts
+import Stream from '../stream'
+
+export default function ftyp(buffer:any){
+    const stream = new Stream(buffer)
+    const majorBrand = stream.readType()
+    const minorVersion = stream.readByte(4)
+    const compatibleBrands = []
+
+    for(let i = stream.position;i<buffer.length;i+=4){
+        compatibleBrands.push(stream.readByte(4))
+    }
+
+    const ftypBox = {
+        majorBrand,
+        minorVersion,
+        compatibleBrands,
+    }
+
+    return ftypBox
+}
+
+```

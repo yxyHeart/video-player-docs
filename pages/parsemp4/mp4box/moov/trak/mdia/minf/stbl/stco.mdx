@@ -1,0 +1,56 @@
+# stco
+## Sample-to-chunk box
+identifies the location of each chunk of data in the media’s data stream.
+## Overview
+| Data field  | Bytes |
+| ----------- | ----- |
+| Size        | 4     |
+| Type        | 4     |
+| Version        |1     |
+| Flags       | 3    |
+| Number of entries       | 4    |
+| Chunk offset table     | Variable     |
+
+## Data fields
+- Size:
+A 32-bit integer that specifies the number of bytes in this chunk offset atom.
+- Type:
+A 32-bit integer that identifies the atom type.
+- Version:
+A 1-byte specification of the version of this chunk offset atom.
+- Flags:
+A 3-byte space for chunk offset flags.
+- Number of entries:
+A 32-bit integer containing the count of entries in the chunk offset table.
+- Chunk offset table:
+A chunk offset table consisting of an array of offset values.
+
+## Parse code
+```ts
+import Stream from '../stream'
+
+export default function stco(buffer:any){
+    const stream = new Stream(buffer)
+
+    const version = stream.readByte(1)
+    const flags = stream.readByte(3)
+
+    const entryCount = stream.readByte(4)
+    const samples = []
+
+    for(let i = 0;i<entryCount;i++){
+        samples.push({
+            chunkOffset:stream.readByte(4)
+        })
+    }
+
+    const stcoBox = {
+        version,
+        flags,
+        samples,
+    }
+
+    return stcoBox
+
+}
+```

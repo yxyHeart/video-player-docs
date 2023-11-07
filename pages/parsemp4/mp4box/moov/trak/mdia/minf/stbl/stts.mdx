@@ -1,0 +1,62 @@
+# stts
+## Time-to-sample box
+stores duration information for a media's samples, 
+providing a mapping from a time in a media to the corresponding data sample.
+
+## Overview
+| Data field  | Bytes |
+| ----------- | ----- |
+| Size        | 4     |
+| Type        | 4     |
+| Version        |1     |
+| Flags       | 3    |
+| Number of entries       | 4    |
+| Time-to-sample table      | Variable     |
+
+## Data fields
+- Size:
+A 32-bit integer that specifies the number of bytes in this time-to-sample atom.
+- Type:
+A 32-bit integer that identifies the atom type.
+- Version:
+A 1-byte specification of the version of this time-to-sample atom.
+- Flags:
+A 3-byte space for time-to-sample flags.
+- Number of entries:
+A 32-bit integer containing the count of entries in the time-to-sample table.
+- Time-to-sample table:
+A table that defines the duration of each sample in the media.
+
+## Parse code
+
+```ts
+import Stream from '../stream'
+
+export default function stts(buffer:any){
+    const stream = new Stream(buffer)
+
+    const version = stream.readByte(1)
+    const flags = stream.readByte(3)
+    const entryCount = stream.readByte(4)
+
+    const samples = []
+
+    for(let i =0;i<entryCount;i++){
+        const sampleCount = stream.readByte(4)
+        const sampleDelta = stream.readByte(4)
+        samples.push({
+            sampleCount,
+            sampleDelta,
+        })
+    }
+
+    const sttsBox = {
+        version,
+        flags,
+        samples,
+    }
+
+    return sttsBox
+
+}
+```

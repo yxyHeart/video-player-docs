@@ -1,0 +1,59 @@
+# stsz
+## Sample size box
+specify the size of each sample in the media.
+
+## Overview
+| Data field  | Bytes |
+| ----------- | ----- |
+| Size        | 4     |
+| Type        | 4     |
+| Version        |1     |
+| Flags       | 3    |
+| Sample size      | 4    |
+| Number of entries       | 4    |
+| Sample size table     | Variable     |
+
+## Data fields
+- Size:
+A 32-bit integer that specifies the number of bytes in this sample size atom.
+- Type:
+A 32-bit integer that identifies the atom type.
+- Version:
+A 1-byte specification of the version of this sample size atom.
+- Flags:
+A 3-byte space for sample size flags.
+- Sample size:
+A 32-bit integer specifying the sample size.
+- Number of entries:
+A 32-bit integer containing the count of entries in the sample size table.
+- Sample size table:
+A table containing the sample size information.
+
+## Parse code
+```ts
+import Stream from '../stream'
+
+export default function stss(buffer:any){
+    const stream = new Stream(buffer)
+
+    const version = stream.readByte(1)
+    const flags = stream.readByte(3)
+
+    const sampleSize = stream.readByte(4)
+    const sampleCount = stream.readByte(4)
+    const samples = []
+
+    for(let i=0;i<sampleCount;i++){
+        samples.push({entrySize:stream.readByte(4)})
+    }
+
+    const stssBox = {
+        version,
+        flags,
+        sampleSize,
+        samples
+    }
+
+    return stssBox
+}
+```

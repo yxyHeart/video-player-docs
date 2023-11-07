@@ -1,0 +1,63 @@
+# stsd
+## Sample description box
+stores information that allows you to decode samples in the media.
+## Overview
+| Data field  | Bytes |
+| ----------- | ----- |
+| Size        | 4     |
+| Type        | 4     |
+| Version        |1     |
+| Flags       | 3    |
+| Number of entries       | 4    |
+| Sample description table      | Variable     |
+
+## Data fields
+- Size:
+A 32-bit integer that specifies the number of bytes in this sample description atom.
+- Type:
+A 32-bit integer that identifies the atom type.
+- Version:
+A 1-byte specification of the version of this sample description atom.
+- Flags:
+A 3-byte space for sample description flags.
+- Number of entries:
+A 32-bit integer containing the number of sample descriptions that follow.
+- Sample description table:
+An array of sample descriptions.
+
+## Parse code
+```ts
+import Stream from '../stream'
+import Box from '../mp4Box'
+
+export default function stsd(buffer: any) {
+  const stream = new Stream(buffer)
+
+  const version = stream.readByte(1)
+  const flags = stream.readByte(3)
+
+  const entryCount = stream.readByte(4)
+
+  const box = []
+  const avc1Buffer = stream.buffer.slice(8)
+  const newStream = new Stream(avc1Buffer)
+  const MP4Box = new Box()
+  let type = 'avc1'
+
+  for (let i = 0; i < entryCount; i++) {
+    MP4Box.readSize(newStream)
+    MP4Box.readType(newStream)
+    MP4Box.readBody(newStream)
+    box.push(MP4Box.box)
+    type = MP4Box.type
+  }
+
+  const stsdBox = {
+    version,
+    flags,
+    [type]: box,
+  }
+
+  return stsdBox
+}
+```

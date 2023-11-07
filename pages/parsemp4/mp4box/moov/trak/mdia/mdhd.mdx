@@ -1,0 +1,79 @@
+# mdhd
+## Media header box
+specifies the characteristics of a media, including time scale and duration.
+## Overview
+| Data field  | Bytes |
+| ----------- | ----- |
+| Size        | 4     |
+| Type        | 4     |
+| Version        |1     |
+| Flags       |3    |
+| Creation time        | 4     |
+| Modification time       | 4     |
+| Time scale      | 4     |
+| Duration        | 4     |
+| Language       | 2    |
+| Quality       | 2   |
+
+## Data fields
+- Size:
+A 32-bit integer that specifies the number of bytes in this media header atom.
+- Type:
+A 32-bit integer that identifies the atom type.
+- Version:
+One byte that specifies the version of this header atom.
+- Flags:
+Three bytes of space for media header flags.
+- Creation time:
+A 32-bit integer that specifies the creation date for the media atom.
+- Modification time:
+A 32-bit integer that specifies the last modification date for the media atom.
+- Time scale:
+A time value that indicates the time scale for this media.
+- Duration:
+The duration of this media in units of its time scale.
+- Language:
+A 16-bit integer that specifies the language code for this media.
+- Quality:
+A 16-bit integer that specifies the media's playback quality.
+
+## Parse code
+```ts
+import Stream from '../stream'
+
+export default function mdhd(buffer: any) {
+  const stream = new Stream(buffer)
+
+  const version = stream.readByte(1)
+  const flags = stream.readByte(3)
+  const creationTime = stream.readByte(4)
+  const modificationTime = stream.readByte(4)
+  const timescale = stream.readByte(4)
+  const duration = stream.readByte(4)
+  const language = stream.readByte(2)
+
+  const field = []
+  field[0] = (language >> 10) & 0x1f
+  field[1] = (language >> 5) & 0x1f
+  field[2] = language & 0x1f
+  const languageString = String.fromCharCode(
+    0x60 + field[0],
+    0x60 + field[1],
+    0x60 + field[2]
+  )
+
+  // preDefined
+  stream.readByte(2)
+  const mdhdBox = {
+    version,
+    flags,
+    creationTime,
+    modificationTime,
+    timescale,
+    duration,
+    languageString,
+  }
+
+  return mdhdBox
+}
+```

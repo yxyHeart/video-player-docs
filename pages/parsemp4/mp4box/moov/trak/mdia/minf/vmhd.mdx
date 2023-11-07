@@ -1,0 +1,49 @@
+## vmhd
+## Video media information header box
+defines specific color and graphics mode information.
+## Overview
+| Data field  | Bytes |
+| ----------- | ----- |
+| Size        | 4     |
+| Type        | 4     |
+| Version        |1     |
+| Flags       | 3    |
+| Graphics mode       | 2     |
+| Opcolor       | 6     |
+
+## Data fields
+- Size:
+A 32-bit integer that specifies the number of bytes in this video media information header atom.
+- Type:
+A 32-bit integer that identifies the atom type.
+- Version:
+A 1-byte specification of the version of this video media information header atom.
+- Flags:
+A 3-byte space for video media information flags.
+- Graphics mode:
+A 16-bit integer that specifies the transfer mode.
+- Opcolor:
+Three 16-bit values that specify the red, green, and blue colors for the transfer mode operation indicated in the graphics mode field
+
+## Parse code
+```ts
+import Stream from '../stream'
+
+export default function vmhd(buffer: any) {
+  const stream = new Stream(buffer)
+
+  const version = stream.readByte(1)
+  const flags = stream.readByte(3)
+  const graphicsmode = stream.readByte(2)
+  const opcolor = new Array(3).fill(stream.readByte(2))
+
+  const vmhdBox = {
+    version,
+    flags,
+    graphicsmode,
+    opcolor,
+  }
+
+  return vmhdBox
+}
+```

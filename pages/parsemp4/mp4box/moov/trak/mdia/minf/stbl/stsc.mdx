@@ -1,0 +1,57 @@
+# stsc
+## Sample-to-chunk box
+stores chunk information for the samples in a media.
+## Overview
+| Data field  | Bytes |
+| ----------- | ----- |
+| Size        | 4     |
+| Type        | 4     |
+| Version        |1     |
+| Flags       | 3    |
+| Number of entries       | 4    |
+| sample-to-chunk table     | Variable     |
+
+## Data fields
+- Size:
+A 32-bit integer that specifies the number of bytes in this sample-to-chunk atom.
+- Type:
+A 32-bit integer that identifies the atom type.
+- Version:
+A 1-byte specification of the version of this sample-to-chunk atom.
+- Flags:
+A 3-byte space for sample-to-chunk flags.
+- Number of entries:
+A 32-bit integer containing the count of entries in the sample-to-chunk table.
+- Sample-to-chunk table:
+A table that maps samples to chunks.
+
+## Parse code
+```ts
+import Stream from '../stream'
+
+export default function stsc(buffer:any){
+    const stream = new Stream(buffer)
+
+    const version = stream.readByte(1)
+    const flags = stream.readByte(3)
+
+    const entryCount = stream.readByte(4)
+    const samples = []
+
+    for(let i =0;i<entryCount;i++){
+        samples.push({
+            firstChunk:stream.readByte(4),
+            samplesPerChunk:stream.readByte(4),
+            sampleDescriptionIndex:stream.readByte(4),
+        })
+    }
+
+    const stscBox = {
+        version,
+        flags,
+        samples,
+    }
+
+    return stscBox
+}
+```
